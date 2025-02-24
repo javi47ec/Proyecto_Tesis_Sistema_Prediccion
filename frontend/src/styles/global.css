@@ -1,0 +1,252 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+  }
+  
+  h1, h2, h3 {
+    color: #333;
+  }
+  
+  nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  nav a {
+    text-decoration: none;
+    color: white;
+  }
+  /* Home.css */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;  /* Altura completa de la ventana */
+  text-align: center;  /* Centra el texto horizontalmente */
+  background-color: #f4f4f4;  /* Color de fondo (opcional) */
+}
+
+.logo {
+  width: 200px;  /* Ajusta el tamaño del logo */
+  height: auto;
+  margin-bottom: 20px;  /* Espaciado debajo de la imagen */
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 10px 0;
+}
+
+p {
+  font-size: 1rem;
+  margin: 5px 0;
+}
+/* Estilos globales para la tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #4CAF50;
+  color: white;
+  font-size: 1.2rem;
+}
+
+td {
+  font-size: 1rem;
+  color: #555;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+
+button {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 0.9rem;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:focus {
+  outline: none;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Estilos adicionales para mejorar la visualización */
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+table {
+  margin-top: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Colorear filas según estado de riesgo */
+tr.riesgo {
+  background-color: #ffcccc; /* Rojo claro */
+}
+
+tr.sin-riesgo {
+  background-color: #ccffcc; /* Verde claro */
+}
+
+/* Estilos para la barra de navegación */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #007BFF;
+  padding: 10px 20px;
+  color: white;
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-links li a {
+  color: white;
+  text-decoration: none;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logout-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.logout-button:hover {
+  background-color: darkred;
+}
+
+/* Estilos para el inicio de sesión */
+.login-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.login-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.active-link {
+  font-weight: bold;
+  text-decoration: underline;
+  color: #007bff;
+}
+
+.predicciones-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.predicciones-table th,
+.predicciones-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.predicciones-table th {
+  background-color: #007bff;
+  color: white;
+}
+
+.predicciones-table tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Aquí puedes agregar tus estilos personalizados después de las directivas */
