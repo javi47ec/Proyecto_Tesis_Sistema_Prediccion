@@ -153,6 +153,27 @@ const predictionController = {
       console.error('Error al generar predicción:', error);
       res.status(500).json({ message: 'Error interno del servidor' });
     }
+  },
+
+  guardarPrediccion: async (req, res) => {
+    const { id_estudiante, nivel_riesgo, probabilidad } = req.body;
+
+    if (!id_estudiante || !nivel_riesgo || probabilidad === undefined) {
+      return res.status(400).json({ message: "Todos los campos son requeridos." });
+    }
+
+    try {
+      await pool.execute(
+        `INSERT INTO prediccion (id_estudiante, nivel_riesgo, probabilidad, es_temporal) 
+         VALUES (?, ?, ?, TRUE)`,
+        [id_estudiante, nivel_riesgo, probabilidad]
+      );
+
+      res.json({ success: true, message: "Predicción guardada correctamente." });
+    } catch (error) {
+      console.error("❌ Error al guardar predicción:", error);
+      res.status(500).json({ message: "Error al guardar la predicción." });
+    }
   }
 };
 

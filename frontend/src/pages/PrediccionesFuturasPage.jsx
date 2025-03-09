@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SubirExcel from '../components/SubirExcel';
 
 const PrediccionesFuturasPage = () => {
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [predicciones, setPredicciones] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -15,8 +16,14 @@ const PrediccionesFuturasPage = () => {
     if (nuevasPredicciones?.predicciones) {
       setPredicciones(nuevasPredicciones.predicciones);
       setPaginaActual(1); // Reiniciar a la primera página cuando se cargan nuevas predicciones
+      setUploadSuccess(true); // Set upload success
+  
+      // Optional: Auto-clear success message after 5 seconds
+      setTimeout(() => {
+        setUploadSuccess(false);
+      }, 5000);
     } else {
-      
+      setUploadSuccess(false);
     }
     setLoading(false);
   };
@@ -58,6 +65,13 @@ const PrediccionesFuturasPage = () => {
         onUploadSuccess={handlePrediccionesRecibidas}
         onLoadingChange={handleLoadingChange}
       />
+
+      {uploadSuccess && (
+        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4" role="alert">
+          <p className="font-bold">¡Datos enviados con éxito!</p>
+          <p>Las predicciones se han procesado correctamente.</p>
+        </div>
+      )}
 
       {loading && (
         <div className="my-4 text-center">

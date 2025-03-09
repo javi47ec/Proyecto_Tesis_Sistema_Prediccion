@@ -2,12 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { Alert, AlertTitle } from '@mui/material'; // Import Alert components
 
+import { obtenerPredicciones as prediccionService } from '../services/prediccionesService';
+
 const PrediccionesPage = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Initialize useNavigate
   const [predicciones, setPredicciones] = useState([]); // Initialize as empty array
   const [prediccionSeleccionada, setPrediccionSeleccionada] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
+  
+  // Estados para el formulario de predicción en caliente
+  const [idEstudiante, setIdEstudiante] = useState("");
+  const [nivelRiesgo, setNivelRiesgo] = useState("BAJO");
+  const [probabilidad, setProbabilidad] = useState(0);
+  const [mensaje, setMensaje] = useState("");
+  // Mostrar/ocultar el formulario de predicción en caliente
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   const [showErrorAlert, setShowErrorAlert] = useState(false); // State to manage error alert visibility
   const [showSuccessAlert, setShowSuccessAlert] = useState(false); // State to manage success alert visibility
@@ -35,6 +45,45 @@ const PrediccionesPage = () => {
     setSearchTerm(event.target.value);
   };
 
+  // Función para enviar predicción en caliente
+  const handleEnviar = async () => {
+    try {
+      const response = await prediccionService.guardarPrediccion(idEstudiante, nivelRiesgo, probabilidad);
+      setMensaje(response.message);
+      
+      // Mostrar alerta de éxito
+      setAlertInfo({
+        show: true,
+        type: 'success',
+        message: response.message || 'Predicción guardada exitosamente'
+      });
+      
+      // Limpiar campos después de guardar
+      setIdEstudiante("");
+      setProbabilidad(0);
+      
+      // Ocultar alerta después de 5 segundos
+      setTimeout(() => {
+        setAlertInfo({ show: false, type: '', message: '' });
+      }, 5000);
+      
+    } catch (error) {
+      setMensaje(error);
+      
+      // Mostrar alerta de error
+      setAlertInfo({
+        show: true,
+        type: 'error',
+        message: error.toString() || 'Error al guardar la predicción'
+      });
+      
+      // Ocultar alerta después de 5 segundos
+      setTimeout(() => {
+        setAlertInfo({ show: false, type: '', message: '' });
+      }, 5000);
+    }
+  };
+  
   // 🔍 Filtrar predicciones por nombre
   const filteredPredicciones = predicciones.filter((prediccion) =>
     prediccion.estudiante.toLowerCase().includes(searchTerm.toLowerCase())
@@ -262,33 +311,151 @@ const PrediccionesPage = () => {
     <div className="p-6 relative">
       <h1 className="text-3xl font-bold mb-4">Predicciones de Riesgo de Deserción</h1>
 
+      {/* Nuevo botón para mostrar/ocultar el formulario de predicción en caliente */}
+      <div className="flex justify-end mb-4">
+        <button 
+          onClick={() => setMostrarFormulario(!mostrarFormulario)}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          {mostrarFormulario ? "Ocultar Predicción Manual" : "Nueva Predicción Manual"}
+        </button>
+      </div>
+
+      {/* Formulario para predicciones en caliente */}
+      {mostrarFormulario && (
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
+          <h2 className="text-xl font-bold mb-4 text-blue-600">Predicciones en Caliente</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">ID Estudiante</label>
+              <input 
+                type="text" 
+                placeholder="ID Estudiante" 
+                value={idEstudiante} 
+                onChange={(e) => setIdEstudiante(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nivel de Riesgo</label>
+              <select 
+                value={nivelRiesgo} 
+                onChange={(e) => setNivelRiesgo(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="BAJO">Bajo</option>
+                <option value="MEDIO">Medio</option>
+                <option value="ALTO">Alto</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Probabilidad</label>
+              <input 
+                type="number" 
+                step="0.01" 
+                min="0" 
+                max="1"
+                placeholder="Probabilidad (0-1)" 
+                value={probabilidad} 
+                onChange={(e) => setProbabilidad(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <button 
+              onClick={handleEnviar}
+              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+            >
+              Enviar Predicción
+            </button>
+          </div>
+          {mensaje && (
+            <div className="mt-3 p-3 bg-blue-50 text-blue-700 rounded-md">
+              {mensaje}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-4">
         {/* 🔍 Barra de búsqueda con lupa */}
         <div className="relative w-1/2">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg
+              className="w-5 h-5 text-gray-400 transition-colors duration-200"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-4.35-4.35m-2.15 0A7.5 7.5 0 10 3 10.5a7.5 7.5 0 0010.5 7.15z"
+              />
+            </svg>
+          </div>
           <input
             type="text"
             placeholder="Buscar estudiante..."
-            className="w-full p-2 pl-10 border rounded"
+            className="
+      w-full 
+      p-3 
+      pl-10 
+      border 
+      border-gray-300 
+      rounded-lg 
+      focus:outline-none 
+      focus:ring-2 
+      focus:ring-blue-500 
+      focus:border-transparent 
+      transition-all 
+      duration-300 
+      ease-in-out 
+      text-gray-700 
+      placeholder-gray-400
+      hover:shadow-sm
+    "
             value={searchTerm}
             onChange={handleSearch}
           />
-          <svg
-            className="absolute left-3 top-3 w-5 h-5 text-gray-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m-2.15 0A7.5 7.5 0 10 3 10.5a7.5 7.5 0 0010.5 7.15z" />
-          </svg>
         </div>
 
         <button
           onClick={enviarReporteABienestar}
           disabled={predicciones.length === 0}
-          className="bg-green-500 text-white p-2 rounded disabled:opacity-50"
+          className={`
+    px-4 
+    py-2 
+    rounded-lg 
+    font-semibold 
+    transition-all 
+    duration-300 
+    ease-in-out 
+    flex 
+    items-center 
+    justify-center 
+    space-x-2
+    ${predicciones.length === 0
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-green-500 text-white hover:bg-green-600 hover:shadow-md active:bg-green-700'}
+  `}
         >
-          Enviar Reporte
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span>Enviar Reporte</span>
         </button>
       </div>
 

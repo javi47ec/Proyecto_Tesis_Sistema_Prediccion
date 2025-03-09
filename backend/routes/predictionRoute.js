@@ -5,7 +5,12 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); // Carpeta donde se guardarán los archivos
 const predictionModel = require('../model/predictionModel');
 const prediccionFutController = require('../controllers/prediccionFutController');
+const predictionController = require('../controllers/predictionController');
+
 const db = require('../config/db');
+
+// Ruta para guardar una predicción en caliente
+router.post("/guardar", predictionController.guardarPrediccion);
 
 router.post('/predict', async (req, res) => {
   try {

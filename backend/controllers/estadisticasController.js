@@ -18,7 +18,7 @@ const getDatosGenerales = async (req, res) => {
         const params = [];
 
         if (nivel && nivel !== 'todos') {
-            queryStr += ` AND TRIM(LOWER(n.nombre)) = TRIM(LOWER(?))`;  
+            queryStr += ` AND TRIM(LOWER(n.nombre)) = TRIM(LOWER(?))`;
             params.push(nivel);
         }
 
@@ -182,6 +182,27 @@ const getCantidadEstudiantesPorNivel = async (req, res) => {
     }
 };
 
+const obtenerEstadisticas = async (req, res) => {
+    try {
+        const [resultados] = await pool.execute(`
+          SELECT p.id_estudiante, p.nivel_riesgo, p.probabilidad, e.nombres, e.apellidos, p.es_temporal
+          FROM prediccion p
+          JOIN estudiante e ON p.id_estudiante = e.id_estudiante
+          WHERE (p.es_temporal = TRUE OR p.fecha_prediccion > NOW() - INTERVAL 1 MONTH)
+          AND (p.nivel_riesgo IN ('MEDIO', 'ALTO') OR p.probabilidad >= 0.20)
+        `);
+
+        // Separar los datos en caliente e históricos
+        const enCaliente = resultados.filter(row => row.es_temporal);
+        const historico = resultados.filter(row => !row.es_temporal);
+
+        res.json({ enCaliente, historico });
+    } catch (error) {
+        console.error("❌ Error al obtener estadísticas:", error);
+        res.status(500).json({ message: "Error al obtener estadísticas." });
+    }
+};
+
 
 
 module.exports = {
@@ -189,5 +210,6 @@ module.exports = {
     getDatosRendimiento,
     getDistribucionNotas,
     getRendimientoAsignaturas,
-    getCantidadEstudiantesPorNivel
+    getCantidadEstudiantesPorNivel,
+    obtenerEstadisticas
 };

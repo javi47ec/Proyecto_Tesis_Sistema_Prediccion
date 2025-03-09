@@ -5,6 +5,7 @@ import App from './App';
 import { GlobalStateProvider } from './context/GlobalStateContext';
 import './styles/global.css';
 
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <GlobalStateProvider>

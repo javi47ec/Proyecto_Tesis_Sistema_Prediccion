@@ -4,10 +4,10 @@ const USER_KEY = 'user';
 const TOKEN_KEY = 'token';
 
 const authService = {
-  login: async (email, password) => {  
+  login: async (email, password) => {
     try {
       const response = await api.post('/auth/login', { email, password });
-      
+
       console.log("🔹 Respuesta del backend:", response.data);
 
       // Validar que tengamos todos los datos necesarios
@@ -26,14 +26,28 @@ const authService = {
       };
 
       localStorage.setItem(USER_KEY, JSON.stringify(userData));
-      
+
       // Configurar el token para futuras peticiones
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-        
+
       return response.data;
     } catch (error) {
       console.error("❌ Error al iniciar sesión:", error);
       throw error.response?.data?.message || 'Error al iniciar sesión';
+    }
+  },
+  // ✅ Función para solicitar el enlace de recuperación de contraseña
+  forgotPassword: async (email) => {
+    await api.post('/auth/forgot-password', { email });
+  },
+
+  // ✅ Función para cambiar la contraseña después de recibir el enlace
+  resetPassword: async (token, nuevaContrasena) => {
+    try {
+      const response = await api.post(`/auth/reset-password/${token}`, { nuevaContrasena });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || "Error al restablecer la contraseña";
     }
   },
 
@@ -43,9 +57,9 @@ const authService = {
       if (!email || !password || !role) {
         throw new Error('Todos los campos son requeridos');
       }
-      
+
       console.log('Datos a enviar:', { email, password, role, id_docente });
-      const response = await api.post('/auth/register', { 
+      const response = await api.post('/auth/register', {
         email,
         password,
         role,
@@ -59,26 +73,35 @@ const authService = {
       throw error.response?.data?.message || 'Error al registrarse';
     }
   },
+  enviarCorreoRecuperacion: async (email) => {
+    await api.post('/auth/forgot-password', { email });
+  },
+
+  restablecerContrasena: async (token, newPassword) => {
+    await api.post(`/auth/reset-password/${token}`, { newPassword });
+  },
+
+
 
   logout: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     delete api.defaults.headers.common['Authorization'];
   },
-  
+
   getCurrentUser: () => {
     try {
       const userStr = localStorage.getItem(USER_KEY);
       if (!userStr) return null;
-      
+
       const user = JSON.parse(userStr);
-      
+
       // Validar que el objeto usuario tenga la estructura esperada
       if (!user || !user.role) {
         console.warn('Datos de usuario inválidos en localStorage');
         return null;
       }
-      
+
       return user;
     } catch (error) {
       console.error('Error al obtener usuario actual:', error);

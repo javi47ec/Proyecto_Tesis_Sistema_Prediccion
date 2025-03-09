@@ -7,7 +7,7 @@ import { guardarSeguimiento } from '../services/estudiantesService';
 import axios from 'axios';
 import { GlobalStateContext } from '../context/GlobalStateContext';
 import { obtenerPredicciones } from '../services/prediccionesService';
-
+import { Search, ListFilter } from 'lucide-react';
 const EstudiantesPage = ({ currentUser }) => {
   const { id } = useParams();
   const [showNoResultsModal, setShowNoResultsModal] = useState(false);
@@ -277,26 +277,94 @@ const EstudiantesPage = ({ currentUser }) => {
 
   // 🔥 Obtener predicciones y fusionar datos (con useMemo para evitar renders innecesarios)
   const estudiantesAMostrar = useMemo(() => {
-    const estudiantesConPred = Object.entries(predicciones).map(([id, pred]) => ({
-      id_estudiante: id,
-      nombres: pred.nombres || "Desconocido",
-      apellidos: pred.apellidos || "Desconocido",
-      probabilidad: parseFloat(pred.probabilidad) || 0,
-      nivelRiesgo: pred.nivelRiesgo || "N/A",
-      nivelReferencial: pred.nivel_referencial || "N/A",
-    }));
-
-    const currentStudents = estudiantes.map(est => ({
-      ...est,
-      probabilidad: predicciones[est.id_estudiante]?.probabilidad
-        ? parseFloat(predicciones[est.id_estudiante].probabilidad)
-        : "No predecido",
-      nivelRiesgo: predicciones[est.id_estudiante]?.nivelRiesgo || "N/A",
-      nivelReferencial: predicciones[est.id_estudiante]?.nivel_referencial || est.nivel || "N/A",
-    }));
-
-    // 🔥 Eliminar duplicados por ID
-    return [...new Map([...currentStudents, ...estudiantesConPred].map(item => [item.id_estudiante, item])).values()];
+    // Crear un mapa de predicciones para acceso rápido
+    const prediccionesMap = Object.fromEntries(
+      Object.entries(predicciones).map(([id, pred]) => [
+        id.toString().trim(), // Asegurar que la clave sea un string trimmed
+        {
+          nombres: pred.nombres ? String(pred.nombres).trim().toUpperCase() : "DESCONOCIDO",
+          apellidos: pred.apellidos ? String(pred.apellidos).trim().toUpperCase() : "DESCONOCIDO",
+          probabilidad: pred.probabilidad ? parseFloat(pred.probabilidad) : 0,
+          nivelRiesgo: pred.nivelRiesgo || "N/A",
+          nivelReferencial: pred.nivel_referencial || "SIN DEFINIR"
+        }
+      ])
+    );
+  
+    // Normalizar estudiantes
+    const currentStudents = estudiantes.map(est => {
+      // Convertir id a string y trimear
+      const estId = est.id_estudiante ? String(est.id_estudiante).trim() : "N/A";
+      
+      // Obtener predicción para este estudiante
+      const prediccion = prediccionesMap[estId] || {};
+  
+      return {
+        // Campos base del estudiante con valores por defecto
+        id_estudiante: estId,
+        nombres: est.nombres ? String(est.nombres).trim().toUpperCase() : "DESCONOCIDO",
+        apellidos: est.apellidos ? String(est.apellidos).trim().toUpperCase() : "DESCONOCIDO",
+        
+        // Combinar datos de estudiante y predicción
+        probabilidad: prediccion.probabilidad !== undefined && prediccion.probabilidad !== 0
+          ? prediccion.probabilidad
+          : (predicciones[estId]?.probabilidad 
+              ? parseFloat(predicciones[estId].probabilidad) 
+              : 0),
+        nivelRiesgo: prediccion.nivelRiesgo || 
+          predicciones[estId]?.nivelRiesgo || 
+          "N/A",
+        nivelReferencial: prediccion.nivelReferencial || 
+          predicciones[estId]?.nivel_referencial || 
+          est.nivel || 
+          "SIN DEFINIR",
+        
+        // Campos adicionales de estudiante
+        periodo: est.periodo || "N/A",
+        nivel: est.nivel || "SIN DEFINIR"
+      };
+    });
+  
+    // Agregar predicciones que no tienen correspondencia con estudiantes
+    const additionalPredictions = Object.entries(prediccionesMap)
+      .filter(([id]) => !estudiantes.some(est => String(est.id_estudiante).trim() === id))
+      .map(([id, pred]) => ({
+        id_estudiante: id,
+        nombres: pred.nombres,
+        apellidos: pred.apellidos,
+        probabilidad: pred.probabilidad,
+        nivelRiesgo: pred.nivelRiesgo,
+        nivelReferencial: pred.nivelReferencial,
+        periodo: "N/A",
+        nivel: "SIN DEFINIR"
+      }));
+  
+    // Combinar y eliminar duplicados
+    const combinedStudents = [
+      ...currentStudents,
+      ...additionalPredictions
+    ];
+  
+    // Eliminar duplicados por ID y limpiar
+    const uniqueStudents = Array.from(
+      new Map(
+        combinedStudents.map(item => [
+          item.id_estudiante, 
+          {
+            id_estudiante: String(item.id_estudiante).trim(),
+            nombres: String(item.nombres).trim().toUpperCase(),
+            apellidos: String(item.apellidos).trim().toUpperCase(),
+            probabilidad: item.probabilidad !== undefined ? parseFloat(item.probabilidad) : 0,
+            nivelRiesgo: item.nivelRiesgo || "N/A",
+            nivelReferencial: item.nivelReferencial || "SIN DEFINIR",
+            periodo: item.periodo || "N/A",
+            nivel: item.nivel || "SIN DEFINIR"
+          }
+        ])
+      ).values()
+    );
+  
+    return uniqueStudents;
   }, [estudiantes, predicciones]);
 
   // ⚠️ Solo se recalcula cuando `estudiantes` o `predicciones` cambian
@@ -313,6 +381,30 @@ const EstudiantesPage = ({ currentUser }) => {
       setNivelesDisponibles(JSON.parse(storedNiveles));
     }
   }, []);
+  useEffect(() => {
+    console.log("📡 Estudiantes normalizados:", 
+      JSON.stringify(estudiantesAMostrar, null, 2)
+    );
+    
+    // Log para verificar estructura de un estudiante
+    if (estudiantesAMostrar.length > 0) {
+      console.log("🔍 Estructura de un estudiante de ejemplo:", 
+        JSON.stringify(estudiantesAMostrar[0], null, 2)
+      );
+      
+      // Verificar tipos de datos
+      console.log("🧐 Tipos de datos:", 
+        estudiantesAMostrar.map(est => ({
+          id_estudiante: typeof est.id_estudiante,
+          nombres: typeof est.nombres,
+          apellidos: typeof est.apellidos,
+          probabilidad: typeof est.probabilidad,
+          nivelRiesgo: typeof est.nivelRiesgo,
+          nivelReferencial: typeof est.nivelReferencial
+        }))
+      );
+    }
+  }, [estudiantesAMostrar]);
 
   // 🔥 Obtener y actualizar los niveles disponibles SOLO cuando se cargan predicciones
   useEffect(() => {
@@ -330,7 +422,7 @@ const EstudiantesPage = ({ currentUser }) => {
     // Ordenar los niveles según el orden personalizado
     const nivelesOrdenados = ordenarNiveles(todosLosNiveles);
 
-
+    console.log("Estudiantes a mostrar:", estudiantesAMostrar);
     // Solo actualizar si hay cambios para evitar renders innecesarios
     /*if (nivelesOrdenados.length > 0 && JSON.stringify(nivelesOrdenados) !== JSON.stringify(nivelesDisponibles)) {
       setNivelesDisponibles(nivelesOrdenados);
@@ -579,19 +671,25 @@ const EstudiantesPage = ({ currentUser }) => {
     if (prob >= 0.50) return "bg-red-300 text-black";  // 🔥 Rojo menos intenso
     if (prob >= 0.40) return "bg-yellow-200 text-black"; // ⚠️ Amarillo más suave
     return "bg-green-100 text-black";                    // ✅ Verde más suave
-};
+  };
 
 
 
   // Función para formatear la probabilidad
   const formatProbability = (probabilidad, nivelRiesgo) => {
-    if (!probabilidad || probabilidad === "No predecido") {
-      return { valor: "No predecido", nivel: "N/A" };
+    if (!probabilidad || probabilidad === "No predecido" || probabilidad === "N/A") {
+      return {
+        valor: "No predecido",
+        nivel: "N/A"
+      };
     }
 
     const prob = parseFloat(probabilidad);
     if (isNaN(prob)) {
-      return { valor: "Error", nivel: "N/A" };
+      return {
+        valor: "Error",
+        nivel: "N/A"
+      };
     }
 
     return {
@@ -621,16 +719,16 @@ const EstudiantesPage = ({ currentUser }) => {
 
     console.log("📡 Enviando a Bienestar:", estudiantesValidos);
 
-    navigate("/predicciones", { 
-      state: { 
+    navigate("/predicciones", {
+      state: {
         estudiantesRiesgo: estudiantesValidos.map(est => ({
           ...est,
           // Usar el periodo directamente de los datos
           periodo: est.periodo
-        })), 
+        })),
         predicciones,
-        periodoActivo 
-      } 
+        periodoActivo
+      }
     });
 
     setShowConfirmModal(false);
@@ -704,37 +802,52 @@ const EstudiantesPage = ({ currentUser }) => {
 
           <button
             onClick={handlePredecirTodos}
-            className="ml-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+            className={`
+          flex items-center justify-center 
+          px-4 py-2.5 
+          bg-gradient-to-r from-blue-500 to-blue-600 
+          text-white 
+          rounded-lg 
+          shadow-md 
+          hover:shadow-lg 
+          transition-all 
+          duration-300 
+          ease-in-out
+          ${(!nivelSeleccionado || loading) ? 'opacity-50 cursor-not-allowed' : 'hover:from-blue-600 hover:to-blue-700'}
+        `}
             disabled={!nivelSeleccionado || loading}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : "Predecir Todos"}
+            {loading ? (
+              <div className="animate-spin">
+                <ListFilter className="w-5 h-5" />
+              </div>
+            ) : (
+              <>
+                <ListFilter className="mr-2 w-5 h-5" />
+                Predecir Todos
+              </>
+            )}
           </button>
         </div>
 
 
         {/* 🔍 Barra de búsqueda */}
-        <div className="relative">
+        <div className="relative w-80"> {/* Reducido el ancho a w-64 (256px) */}
           <input
             type="text"
-            placeholder="Buscar por ID o nombre..."
-            className="w-full p-2 border rounded pl-10"
+            placeholder="Buscar..."
+            className="w-full pl-8 pr-2 py-2 
+                   border border-gray-300 rounded-md 
+                   text-sm 
+                   focus:outline-none focus:ring-1 focus:ring-blue-500 
+                   focus:border-transparent"
             value={searchTerm}
             onChange={handleSearchChange}
           />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm6-2l4 4"
-            />
-          </svg>
+          <Search
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 
+                   text-gray-400 w-4 h-4"
+          />
         </div>
       </div>
 
@@ -763,17 +876,22 @@ const EstudiantesPage = ({ currentUser }) => {
                 </thead>
                 <tbody>
                   {currentPaginatedStudents.map((estudiante, index) => {
-                    const { valor, nivel } = formatProbability(
+                    let { valor, nivel } = formatProbability(
                       estudiante.probabilidad,
                       estudiante.nivelRiesgo
                     );
 
+                    if (!estudiante.probabilidad || estudiante.probabilidad === "N/A") {
+                      valor = "No predecido";
+                      nivel = "";
+                    }
+
                     return (
                       <tr
                         key={`${estudiante.id_estudiante || index}`}
-                        className={getColorForProbability(estudiante.probabilidad, estudiante.nivelRiesgo)}
-                      >
-                        <td className="border px-4 py-2">{estudiante.id_estudiante || "N/A"}</td>
+                        className={getColorForProbability(estudiante.probabilidad, estudiante.nivelRiesgo)}>
+                        {/* ✅ Forzar el ID a string para evitar conversión a número */}
+                        <td className="border px-4 py-2">{String(estudiante.id_estudiante) || "N/A"}</td>
                         <td className="border px-4 py-2">{estudiante.nombres || "Desconocido"}</td>
                         <td className="border px-4 py-2">{estudiante.apellidos || "Desconocido"}</td>
                         <td className="border px-4 py-2">
@@ -807,6 +925,7 @@ const EstudiantesPage = ({ currentUser }) => {
                     );
                   })}
                 </tbody>
+
               </table>
             )}
 

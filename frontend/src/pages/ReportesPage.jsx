@@ -124,18 +124,22 @@ const ReportesPage = () => {
         {/* Botón para descargar Excel */}
         <button
           onClick={descargarExcel}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center"
+          className={`
+    ${reportes.length === 0
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg'}
+    font-semibold py-2 px-4 rounded-lg inline-flex items-center transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50
+  `}
           disabled={reportes.length === 0}
         >
           <svg
-            className="w-5 h-5 mr-2"
-            fill="currentColor"
-            viewBox="0 0 24 24"
+            className="fill-current w-5 h-5 mr-2"
             xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
           >
-            <path d="M16 2H8c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 14h-2v-2h2v2zm0-4h-2V8h2v4zm-4 4H9v-2h2v2zm0-4H9V8h2v4z" />
+            <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
           </svg>
-          Descargar Excel
+          <span>Descargar Excel</span>
         </button>
       </div>
 
@@ -152,7 +156,7 @@ const ReportesPage = () => {
                     <tr className="bg-blue-500 text-white">
                       <th className="border p-2">ID</th>
                       <th className="border p-2">Estudiante</th>
-                      
+
                       <th className="border p-2">Probabilidad (%)</th>
                       <th className="border p-2">Comentarios</th>
                     </tr>
@@ -164,7 +168,7 @@ const ReportesPage = () => {
                         <tr key={idx} className={getColorForProbability(est.probabilidad)}>
                           <td className="border p-2">{est.id_estudiante}</td>
                           <td className="border p-2">{est.estudiante}</td>
-                          
+
                           <td className="border p-2">{(est.probabilidad * 100).toFixed(2)}%</td>
                           <td className="border p-2">{est.comentario || "N/A"}</td>
                         </tr>

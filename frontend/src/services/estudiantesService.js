@@ -182,6 +182,15 @@ export const obtenerCantidadEstudiantesPorNivel = async (nivel = 'todos') => {
   }
 };
 
+export const obtenerEstadisticasConPredicciones = async () => {
+  try {
+    const response = await api.get(`http://localhost:5000/api/estadisticas`);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener estadísticas:', error);
+    throw new Error('Error al obtener estadísticas.');
+  }
+};
 // METODOS PARA SEGUMIENTO DE ESTUDIANTES
 export const obtenerSeguimientos = async () => {
   try {

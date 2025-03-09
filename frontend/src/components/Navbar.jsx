@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Alert, AlertTitle } from '@mui/material';
-//import WarningIcon from '@material-ui/icons/Warning';
+import { 
+  Dialog, 
+  DialogActions, 
+  DialogContent, 
+  DialogTitle, 
+  Button, 
+  Typography,
+  Box
+} from '@mui/material';
+import WarningIcon from '@mui/icons-material/Warning';
+
 const Navbar = ({ onLogout, isAuthenticated, userRole, currentUser }) => {
   const [open, setOpen] = useState(false); // Estado para controlar el diálogo
   const navigate = useNavigate();
@@ -62,38 +71,103 @@ const Navbar = ({ onLogout, isAuthenticated, userRole, currentUser }) => {
             {userRole === 'DIRECTOR'
               ? currentUser?.nombre_usuario || 'Director'
               : userRole === 'BIENESTAR_ESTUDIANTIL'
-              ? 'Bienestar Estudiantil'
-              : 'Docente'}
-          </span>    
-          
-             <button onClick={handleDialogOpen} className="logout-button">Cerrar sesión</button>
+                ? 'Bienestar Estudiantil'
+                : 'Docente'}
+          </span>
+
+          <button 
+            onClick={handleDialogOpen} 
+            className="logout-button rounded-xl bg-red-600 px-5 py-3 text-base font-medium text-white 
+                      shadow-md transition duration-200 ease-in-out transform hover:bg-red-700 
+                      active:bg-red-800 hover:scale-105 active:scale-95 
+                      dark:bg-red-500 dark:text-white dark:hover:bg-red-400 dark:active:bg-red-300">
+            Cerrar sesión
+          </button>
         </div>
       )}
 
-      {/* Diálogo de confirmación */}
+      {/* Diálogo de confirmación mejorado */}
       <Dialog
         open={open}
         onClose={handleDialogClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            width: '100%',
+            maxWidth: '400px',
+            overflow: 'hidden'
+          }
+        }}
       >
-        <DialogTitle id="alert-dialog-title">
-          Advertencia
+        <DialogTitle 
+          id="alert-dialog-title"
+          sx={{ 
+            bgcolor: '#f44336', 
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            py: 2
+          }}
+        >
+          <WarningIcon sx={{ color: 'white' }} />
+          <Typography variant="h6" fontWeight="bold">
+            Cerrar Sesión
+          </Typography>
         </DialogTitle>
-        <DialogContent>
-          {/* Mensaje de advertencia con ícono */}
-          <Alert severity="warning" variant='filled' icon={<i className="fas fa-exclamation-triangle"></i>}>
-            <AlertTitle>¡Atención!</AlertTitle>
-            ¿Estás seguro de que deseas cerrar sesión? Perderás el acceso hasta que vuelvas a iniciar sesión.
-
-          </Alert>
+        
+        <DialogContent sx={{ py: 3, px: 3 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            textAlign: 'center', 
+            my: 2 
+          }}>
+            <WarningIcon sx={{ fontSize: 48, color: '#f44336', mb: 2 }} />
+            <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+              ¿Estás seguro de que deseas cerrar sesión?
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+              Perderás el acceso hasta que vuelvas a iniciar sesión.
+            </Typography>
+          </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
+        
+        <DialogActions sx={{ px: 3, pb: 3, justifyContent: 'center', gap: 2 }}>
+          <Button 
+            onClick={handleDialogClose} 
+            variant="outlined"
+            sx={{ 
+              borderRadius: 2,
+              px: 3,
+              borderColor: '#9e9e9e',
+              color: '#666',
+              '&:hover': {
+                borderColor: '#757575',
+                bgcolor: '#f5f5f5'
+              }
+            }}
+          >
             Cancelar
           </Button>
-          <Button onClick={handleLogout} color="secondary" autoFocus>
-            Cerrar sesión
+          <Button 
+            onClick={handleLogout} 
+            variant="contained"
+            color="error"
+            autoFocus
+            sx={{ 
+              borderRadius: 2,
+              px: 3,
+              bgcolor: '#f44336',
+              '&:hover': {
+                bgcolor: '#d32f2f'
+              }
+            }}
+          >
+            Cerrar Sesión
           </Button>
         </DialogActions>
       </Dialog>

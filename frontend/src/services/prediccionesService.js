@@ -77,5 +77,20 @@ export const obtenerPrediccionesFuturas = async (archivo, datos) => {
     throw error;
   }
 };
+// Guardar predicciones en caliente
+const guardarPrediccion = async (idEstudiante, nivelRiesgo, probabilidad) => {
+  try {
+    const response = await api.post("/predicciones/guardar", {
+      id_estudiante: idEstudiante,
+      nivel_riesgo: nivelRiesgo,
+      probabilidad: probabilidad
+    });
 
-export { obtenerPredicciones };
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error al guardar la predicción:", error);
+    throw error.response?.data?.message || "Error al guardar la predicción.";
+  }
+}
+
+export { obtenerPredicciones, guardarPrediccion };

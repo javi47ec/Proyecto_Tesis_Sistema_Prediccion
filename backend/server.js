@@ -44,6 +44,7 @@ app.use('/api/estadisticas', estadisticasRoutes); // prefijo de la ruta estadist
 app.use('/api/seguimientos', seguimientoRoutes); // Prefijo para seguimientos
 app.use('/api/auth', authRoutes); // prefijo para autenticacion
 app.use('/api/periodos', periodoRoutes); // prefijo de la ruta
+app.use('/api', estadisticasRoutes); // Debe coincidir con la ruta en el frontend
 
 // Rutas de autenticación
 app.post('/api/auth/register', async (req, res) => {

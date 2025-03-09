@@ -81,15 +81,89 @@ const SeguimientosPage = ({ currentUser }) => {
           value={filtroEstudiante}
           onChange={(e) => setFiltroEstudiante(e.target.value)}
         />
-        <input
-          type="date"
-          className="p-2 border rounded"
-          value={filtroFecha}
-          onChange={(e) => setFiltroFecha(e.target.value)}
-        />
-        <button onClick={exportarExcel} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700">
-          📥 Exportar a Excel
-        </button>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            {/*Datapicker y boton exportar excel */}
+            <input
+              type="date"
+              className="
+        w-full 
+        p-3 
+        pl-10 
+        border 
+        border-gray-300 
+        rounded-lg 
+        focus:outline-none 
+        focus:ring-2 
+        focus:ring-blue-500 
+        focus:border-transparent 
+        transition-all 
+        duration-300 
+        ease-in-out 
+        text-gray-700 
+        appearance-none
+      "
+              value={filtroFecha}
+              onChange={(e) => setFiltroFecha(e.target.value)}
+            />
+          </div>
+
+          <button
+            onClick={exportarExcel}
+            className="
+      px-4 
+      py-2 
+      bg-green-500 
+      text-white 
+      rounded-lg 
+      font-semibold 
+      flex 
+      items-center 
+      justify-center 
+      space-x-2 
+      transition-all 
+      duration-300 
+      ease-in-out 
+      hover:bg-green-600 
+      hover:shadow-md 
+      active:bg-green-700 
+      focus:outline-none 
+      focus:ring-2 
+      focus:ring-green-400 
+      focus:ring-opacity-50
+    "
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>Exportar a Excel</span>
+          </button>
+        </div>
       </div>
 
       <table className="min-w-full bg-white border border-gray-300">
