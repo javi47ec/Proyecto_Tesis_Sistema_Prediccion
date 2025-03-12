@@ -17,7 +17,7 @@ const PrediccionesPage = () => {
   const [probabilidad, setProbabilidad] = useState(0);
   const [mensaje, setMensaje] = useState("");
   // Mostrar/ocultar el formulario de predicción en caliente
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mostrarFormulario] = useState(false);
 
   const [showErrorAlert, setShowErrorAlert] = useState(false); // State to manage error alert visibility
   const [showSuccessAlert, setShowSuccessAlert] = useState(false); // State to manage success alert visibility
@@ -310,17 +310,6 @@ const PrediccionesPage = () => {
   return (
     <div className="p-6 relative">
       <h1 className="text-3xl font-bold mb-4">Predicciones de Riesgo de Deserción</h1>
-
-      {/* Nuevo botón para mostrar/ocultar el formulario de predicción en caliente */}
-      <div className="flex justify-end mb-4">
-        <button 
-          onClick={() => setMostrarFormulario(!mostrarFormulario)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-        >
-          {mostrarFormulario ? "Ocultar Predicción Manual" : "Nueva Predicción Manual"}
-        </button>
-      </div>
-
       {/* Formulario para predicciones en caliente */}
       {mostrarFormulario && (
         <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">

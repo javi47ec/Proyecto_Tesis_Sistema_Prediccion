@@ -7,7 +7,7 @@ const HistorialPage  = () => {
   useEffect(() => {
     const fetchHistorial = async () => {
       try {
-        const response = await axios.get('http://localhost:/historial');
+        const response = await axios.get('http://localhost:3000:/historial');
         setHistorial(response.data);
       } catch (error) {
         console.error('Error al obtener el historial:', error);

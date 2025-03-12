@@ -27,7 +27,6 @@ export const guardarAcciones = async (acciones) => {
 export const obtenerHistorialAcademico = async (id) => {
   console.log("ID del estudiante", id);
   try {
-    // Asegúrate de que id no sea una URL completa
     const studentId = typeof id === 'string' && id.includes('http') 
       ? id.split('/').pop() 
       : id;
